@@ -22,10 +22,10 @@ GAME_TITLE = ""
 ### Functions definition
 def Log(msg, error=False):
 	if (error == True):
-		xbmc.log(__addon_id__ + ' | ' + msg.encode('utf-8'), xbmc.LOGERROR)
+		xbmc.log("[" + __addon_id__ + '] | ' + msg.encode('utf-8'), xbmc.LOGERROR)
 	else:
 		if (debug == "true"):
-			xbmc.log(__addon_id__ + ' | ' + msg.encode('utf-8'))
+			xbmc.log("[" + __addon_id__ + '] | ' + msg.encode('utf-8'))
 
 msg = "Debug mode is " + debug
 Log(msg)
@@ -114,14 +114,15 @@ def INDEX(url_fixtures):
 	end = len(dates) - 1
 
 	for i in range(0, end):
-		title = details[i][1]
+		title = "| [COLOR white]" + details[i][1] + "[/COLOR]"
 		if details[i][2] == "live":
-			live =  __language__(30210)
-			Log ("INDEX | " + live)
-			title = live.encode('utf-8') + " - " + details[i][1]
+			live = "[COLOR green][B]" + __language__(30210) + "[/B][/COLOR]" 
+			title = "[COLOR white]" + live.encode('utf-8') + " " + details[i][1] + "[/COLOR]"
 		match_url = urlparse.urljoin(url_main, urllib.quote(details[i][0]))
 		Log ("INDEX | Generated match_url: " + match_url )
-		match_text = dates[i] + " " + hours[i] + " | " + title
+		Log ("INDEX | dates["+str(i)+"]: " + dates[i] )
+		#Log ("INDEX | dates[i].rstrip()[:-9]: " + dates[i][:6] )
+		match_text = '[CAPITALIZE][B]' + dates[i][:9] + " " + hours[i] + "[/B][/CAPITALIZE] " + title
 		#Create a directory link for the given game
 		addDir(match_text, match_url, 2, "")
 		
