@@ -1,7 +1,12 @@
 plugin.video.gong.play\addon.py
 plugin.video.gong.play\addon.xml
 plugin.video.gong.play\icon.png
+plugin.video.gong.play\changelog.txt
 plugin.video.gong.play\LICENSE
 plugin.video.gong.play\resources\settings.xml
+plugin.video.gong.play\resources\__init__.py
+plugin.video.gong.play\resources\lib\__init__.py
+plugin.video.gong.play\resources\lib\gongplay.py
+plugin.video.gong.play\resources\lib\redirecthandler.py
 plugin.video.gong.play\resources\language\Bulgarian\strings.xml
 plugin.video.gong.play\resources\language\English\strings.xml
