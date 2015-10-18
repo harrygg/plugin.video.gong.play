@@ -141,17 +141,17 @@ class GongPlay:
 		self.request(url_game)
 		#streams = ["http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"]
 		streams = []
-		matches = self.find_regex('title>(.*?)</title')
+		matches = self.find_regex('title>(.*?)<')
 		if len(matches) > 0:
 			self.game_title = matches[0]
-		matches = self.find_regex('iframe.*width=\"[0-9]*\" +height=\"[0-9]*\" +src=\"(.*?)\"')
+		matches = self.find_regex('iframe.+src[="\'\s]+(.*?)[\'"\s]+')
 		if len(matches) > 0:
 			url_iframe = matches[0]
 			self.request(matches[0])
-			video = self.find_regex('video.*src=(.*?) +controls')
+			video = self.find_regex('video.+src[="\']+(.*?)[\'"\s]+')
 			if len(video) > 0:
 				streams.append(video[0])
-				streams.append(re.sub('_(1)\.st', "_2.st", video[0]))
+				streams.append(re.sub('_(1)\.s', "_2.s", video[0]))
 		return streams
 
 	def find_regex(self, exp, flags=re.IGNORECASE):
