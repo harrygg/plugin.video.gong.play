@@ -144,12 +144,14 @@ class GongPlay:
 		matches = self.find_regex('title>(.*?)<')
 		if len(matches) > 0:
 			self.game_title = matches[0]
-		matches = self.find_regex('iframe.+src[="\'\s]+(.*?)[\'"\s]+')
+		matches = self.find_regex('iframe.+src[="\'\s]+(.*cdn.*?)[\'"\s]+')
 		if len(matches) > 0:
+			xbmc.log("[plugin.video.gong.play] | Found Iframe url=" + matches[0])
 			url_iframe = matches[0]
 			self.request(matches[0])
 			video = self.find_regex('video.+src[="\']+(.*?)[\'"\s]+')
 			if len(video) > 0:
+				xbmc.log("[plugin.video.gong.play] | Found video url=" + video[0])
 				streams.append(video[0])
 				streams.append(re.sub('_(1)\.s', "_2.s", video[0]))
 		return streams
