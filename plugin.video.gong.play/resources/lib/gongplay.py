@@ -1,7 +1,5 @@
 ﻿import xbmc, xbmcaddon, urllib, urllib2, cookielib, urlparse, os.path, sys, re
 from redirecthandler import GPHTTPRedirectHandler
-from StringIO import StringIO
-import gzip
 
 reload(sys)  
 sys.setdefaultencoding('utf8')
@@ -19,6 +17,7 @@ class GongPlay:
 	addon_name = ''
 	username = ''
 	password = ''
+	debug = False
 	cj = cookielib.LWPCookieJar()
 	cookie_file = ''
 	cookie_file_vbox = ''
@@ -38,6 +37,8 @@ class GongPlay:
 		self.icon = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), "icon.png"))
 		self.username = addon.getSetting('username')
 		self.password = addon.getSetting('password')
+		self.debug = True if addon.getSetting('debug') == 'true' else False
+		xbmc.log("plugin.video.gong.play | debugging log is set to " + str(self.debug))
 		profile = xbmc.translatePath( addon.getAddonInfo('profile'))
 		self.cookie_file = os.path.join(profile, '.cookies')
 		self.cookie_file_vbox = os.path.join(profile, '.vboxcookie')
@@ -53,6 +54,7 @@ class GongPlay:
 		req.add_header('Referer', rf)
 		res = urllib2.urlopen(req)
 		self.last_response = res.read()
+		if self.debug: xbmc.log("plugin.video.gong.play | Received response for URL:" + url + "\r\n" + self.last_response)
 		res.close()
 		if not 'vbox7' in url:
 			self.set_user_info()
@@ -98,12 +100,14 @@ class GongPlay:
 		
 	def get_categories(self):
 		self.request(self.url_fixtures)
-		matches = self.find_regex('ul.*program-nav.*tablist[\s\"]*>(.*?)</ul', re.DOTALL)
+		matches = self.find_regex('ul.+program-nav.+tablist[\s"\']+>(.*?)</ul', re.DOTALL)
 		categories = []
 		if len(matches) != 0:
 			#Find out category links and titles. 
-			hrefs = re.compile('href[\s="]*(.*?)"').findall(matches[0])
-			names = re.compile('p.*?>(.*?)</p').findall(matches[0])
+			hrefs = re.compile('href[\s="\']*(.*?)["\'\s]+aria').findall(matches[0])
+			if self.debug: xbmc.log("plugin.video.gong.play | get_categories | Found " + str(len(hrefs)) + " matches for regex 'href[\s=\"\']*(.*?)[\"\'\s]+aria'")
+			names = re.compile('p.+?>(.*?)</p').findall(matches[0])
+			if self.debug: xbmc.log("plugin.video.gong.play | get_categories | Found " + str(len(names)) + " matches for regex 'p.+?>(.*?)</p'")
 			# The hrefs are always one more than the category names
 			if len(names) == len(hrefs) - 1:
 				categories.append({'text' : 'Програма - Всички категории', 'url' : hrefs[0]})
@@ -114,6 +118,7 @@ class GongPlay:
 					category['text'] = title.replace('<br>', '')
 					category['url'] =  urlparse.urljoin(self.url_main, hrefs[i+1])
 					categories.append(category)
+					
 		return categories
 
 	def get_games(self, url):
@@ -124,7 +129,7 @@ class GongPlay:
 		hours = self.find_regex('time-info[\s\"]*.*>(.*?)</')
 		details = self.find_regex('href[\s=]*\"(.*)\".*title[\s=]*\"(.*)\".*class[\s=\"]*.*btn-table.*(regular|live).*\".*>')
 		if len(dates) == len(hours) and len(hours) == len(details):
-			for i in range(0, len(dates) - 1):
+			for i in range(0, len(dates)):
 				title = "| [COLOR white]" + details[i][1] + "[/COLOR]"
 				if details[i][2] == "live":
 					live = "[COLOR green][B]%s[/B][/COLOR]" 
@@ -133,6 +138,8 @@ class GongPlay:
 				game['url'] = urlparse.urljoin(self.url_main, urllib.quote(details[i][0]))
 				game['text'] = '[CAPITALIZE][B]' + dates[i][:9] + " " + hours[i] + "[/B][/CAPITALIZE] " + title
 				games.append(game)
+				
+		if self.debug : xbmc.log("plugin.video.gong.play | get_games | Found " + str(len(games)) + " games on " + url)
 		return games
 
 	def get_game_stream(self, url_game):
@@ -146,19 +153,22 @@ class GongPlay:
 			self.game_title = matches[0]
 		matches = self.find_regex('iframe.+src[="\'\s]+(.*cdn.*?)[\'"\s]+')
 		if len(matches) > 0:
-			xbmc.log("[plugin.video.gong.play] | Found Iframe url=" + matches[0])
+			if self.debug : xbmc.log("plugin.video.gong.play | Found Iframe url=" + matches[0])
 			url_iframe = matches[0]
 			self.request(matches[0])
 			video = self.find_regex('video.+src[="\']+(.*?)[\'"\s]+')
 			if len(video) > 0:
-				xbmc.log("[plugin.video.gong.play] | Found video url=" + video[0])
+				xbmc.log("plugin.video.gong.play | Found video url=" + video[0])
 				streams.append(video[0])
 				streams.append(re.sub('_(1)\.s', "_2.s", video[0]))
+				
 		return streams
 
 	def find_regex(self, exp, flags=re.IGNORECASE):
-		return re.compile(exp, flags).findall(self.last_response)
-	
+		matches = re.compile(exp, flags).findall(self.last_response)
+		if self.debug: xbmc.log("plugin.video.gong.play | find_regex | Found " + str(len(matches)) + " matches for regex '" + exp + "', flags=" + str(flags))
+		return matches
+		
 	def get_video_clips(self, url):
 		self.request(url)
 		video_clips = []
@@ -170,9 +180,11 @@ class GongPlay:
 				video_clip['icon'] = matches[i][1]
 				video_clip['text'] = matches[i][2]
 				video_clips.append(video_clip)
+				
 		return video_clips
 	
 	def get_clip_stream(self, id):
 		self.request(self.url_vbox_resolver + id, self.ua_pc, self.url_video_clips)
 		matches = self.find_regex('flv_addr=(.*?)&')	
+		
 		return matches[0] if len(matches) > 0 else ''
