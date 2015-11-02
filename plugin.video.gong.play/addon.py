@@ -3,23 +3,6 @@ import re, sys, os.path, urllib, urllib2, cookielib, urlparse, base64
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 from resources.lib.gongplay import GongPlay
 
-# append pydev remote debugger
-REMOTE_DBG = True
-if REMOTE_DBG:
-	try:
-		sys.path.append("C:\\Software\\Java\\eclipse-luna\\plugins\\org.python.pydev_4.4.0.201510052309\\pysrc")
-		import pydevd
-		xbmc.log("After import pydevd")
-		#import pysrc.pydevd as pydevd # with the addon script.module.pydevd, only use `import pydevd`
-		# stdoutToServer and stderrToServer redirect stdout and stderr to eclipse console
-		pydevd.settrace('localhost', stdoutToServer=False, stderrToServer=False, suspend=False)
-	except ImportError:
-		xbmc.log("Error: You must add org.python.pydev.debug.pysrc to your PYTHONPATH.")
-		sys.exit(1)
-	except:
-		xbmc.log("Unexpected error:", sys.exc_info()[0]) 
-		sys.exit(1)
-		
 reload(sys)  
 sys.setdefaultencoding('utf8')
 _addon = xbmcaddon.Addon(id='plugin.video.gong.play')
