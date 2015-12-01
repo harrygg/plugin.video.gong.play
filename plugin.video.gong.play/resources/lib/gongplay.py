@@ -185,7 +185,7 @@ class GongPlay:
 			self.request(self.url_fixtures)
 			dates = self.find_regex('date-info[\s\'"]+.*>(.*?)</')
 			hours = self.find_regex('time-info[\s\'"]+.*>(.*?)</')
-			details = self.find_regex('href[\s="\']+(.*)"+.*title[\s=\'"]+(.*)"+.*class[=\s"\']+.*btn-table.*(regular|live)')
+			details = self.find_regex('href[\s="\']+(.*)"\s+.*title[\s=\'"]+(.*)"\s+.*class[=\s"\']+.*btn-table.*(regular|live)')
 			if len(dates) == len(hours) and len(hours) == len(details):
 				for i in range(0, len(dates)):
 					title = "| [COLOR white]" + details[i][1] + "[/COLOR]"
