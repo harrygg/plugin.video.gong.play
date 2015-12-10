@@ -112,7 +112,8 @@ class GongPlay:
 				self.is_payment_expired = True if validTo <= now else False
 				#self.session_id = reg_status['session_id']
 				self.is_loggedin = True
-			except AttributeError:
+			except Exception as ex:
+				xbmc.log("| %s | %s | %s" % (self.addon_id, type(ex).__name__, str(ex)))
 				self.is_loggedin =  False
 		else:
 			user_div = re.compile('user-info["\'\s]>(.*?)</div', re.DOTALL).findall(self.last_response)
