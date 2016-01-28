@@ -1,0 +1,23 @@
+ADDON: plugin.video.gong.play by HarryGG
+---------------
+GITHUB DIR:
+C:\Users\genevh\Documents\GitHub\plugin.video.gong.play\plugin.video.gong.play
+KODI DIR:
+C:\Users\genevh\AppData\Roaming\Kodi\addons\plugin.video.gong.play
+FILES:
+.\plugin.video.gong.play\addon.py * found and removed debug lines
+.\plugin.video.gong.play\addon.xml build 2 incremented to 3
+.\plugin.video.gong.play\changelog.txt
+.\plugin.video.gong.play\icon.png
+.\plugin.video.gong.play\resources\settings.xml
+.\plugin.video.gong.play\resources\__init__.py
+.\plugin.video.gong.play\resources\language\Bulgarian\strings.xml
+.\plugin.video.gong.play\resources\language\English\strings.xml
+.\plugin.video.gong.play\resources\lib\gongplay.py
+.\plugin.video.gong.play\resources\lib\redirecthandler.py
+.\plugin.video.gong.play\resources\lib\__init__.py
+--------------
+TOTAL: 11 files 
+ZIP FILE: plugin.video.gong.play.zip
+VERSION: 1.5.3
+BUILD TIME: Thu Jan 28 14:55:46 2016

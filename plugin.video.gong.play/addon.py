@@ -2,7 +2,7 @@
 import re, sys, os.path, urllib, urllib2, cookielib, urlparse, base64
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 from resources.lib.gongplay import GongPlay
-
+	
 reload(sys)  
 sys.setdefaultencoding('utf8')
 _addon = xbmcaddon.Addon(id='plugin.video.gong.play')

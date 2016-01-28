@@ -73,7 +73,7 @@ class GongPlay:
 		req.add_header('Accept-Encoding', 'gzip')
 		res = urllib2.urlopen(req)
 		self.last_response = self.parse_gzip(res)
-		#if self.debug: xbmc.log("plugin.video.gong.play | Received response for URL:" + url + "\r\n" + self.last_response)
+		if self.debug: xbmc.log("plugin.video.gong.play | Received response for URL:" + url + "\r\n" + self.last_response)
 		res.close()
 		if not 'vbox7' in url and self.isApiEngine == False:
 			self.isLoggedIn()
@@ -96,6 +96,12 @@ class GongPlay:
 		res = urllib2.urlopen(req)
 		self.last_response = self.parse_gzip(res)
 		res.close()
+		
+		if not os.path.exists(os.path.dirname(self.cookie_file)):
+			try:
+				os.makedirs(os.path.dirname(self.cookie_file))
+			except OSError as exc: # Guard against race condition
+				if exc.errno != errno.EEXIST: pass
 		self.cj.save(self.cookie_file, ignore_discard=True)
 		return self.isLoggedIn()
 		
@@ -263,13 +269,21 @@ class GongPlay:
 	def get_video_clips(self, url):
 		self.request(url, self.ua_mobile, '')
 		video_clips = []
-		matches = self.find_regex('a.*href=\"/play:([0-9a-zA-Z]{10})\".*img.*src=\"(.*?)\".*alt=\"(.*?)\"')
-		if len(matches) > 0:
-			for i in range(0, len(matches)):
+		thumbs = re.compile('video-thumb(.*?)</div', re.DOTALL).findall(self.last_response)
+		titles = re.compile('video-info-title.*?>(.*?)</a',  re.DOTALL).findall(self.last_response)
+		
+		#matches = self.find_regex('a.*href=\"/play:([0-9a-zA-Z]{10})\".*img.*src=\"(.*?)\".*alt=\"(.*?)\"')
+		if len(thumbs) > 0 and len(thumbs) == len(titles):
+			for i in range(0, len(thumbs)):
+				href = re.compile('href[=\s\'"]+/play:(.*?)[\s\'"]+', re.DOTALL).findall(thumbs[i])
+				img = re.compile('img.*?src[=\s\'"]+(.*?)[\s\'"]+', re.DOTALL).findall(thumbs[i])
+				duration = re.compile('vt-duration[\'"]+.*?>(.*?)</', re.DOTALL).findall(thumbs[i])
+				
+				
 				video_clip = {}
-				video_clip['id'] = matches[i][0]
-				video_clip['icon'] = matches[i][1]
-				video_clip['text'] = matches[i][2]
+				video_clip['id'] = href[0]
+				video_clip['icon'] = img[0]
+				video_clip['text'] = titles[i] + " (" + duration[0] + ")"
 				video_clips.append(video_clip)
 				
 		return video_clips
