@@ -1,6 +1,7 @@
 ﻿import xbmc, xbmcaddon, urllib, urllib2, cookielib, urlparse, os.path, sys, re, hashlib, time, json, gzip, base64
 from StringIO import StringIO
 from redirecthandler import GPHTTPRedirectHandler
+from ga import ga
 
 reload(sys)  
 sys.setdefaultencoding('utf8')
@@ -44,6 +45,7 @@ class GongPlay:
 	def __init__(self, addon):
 		self.addon_name = addon.getAddonInfo('name')
 		self.addon_id = addon.getAddonInfo('id')
+		self.version = addon.getAddonInfo('version')
 		self.icon = xbmc.translatePath(os.path.join(addon.getAddonInfo('path'), "icon.png"))
 		self.username = addon.getSetting('username')
 		self.password = addon.getSetting('password')
@@ -313,3 +315,14 @@ class GongPlay:
 		geo_ip = json_response['geo_ip'][0]
 		ip = geo_ip['ip']
 		return ip
+		
+	def update(self, name, location, crash=None):
+		p = {}
+		p['an'] = self.addon_name
+		p['av'] = self.version
+		p['ec'] = 'Addon actions'
+		p['ea'] = name
+		p['ev'] = '1'
+		p['ul'] = xbmc.getLanguage()
+		p['cd'] = location
+		ga('UA-79422131-3').update(p, crash)

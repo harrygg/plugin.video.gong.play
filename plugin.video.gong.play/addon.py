@@ -2,16 +2,17 @@
 import re, sys, os.path, urllib, urllib2, cookielib, urlparse, base64
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 from resources.lib.gongplay import GongPlay
-	
-reload(sys)  
+
+reload(sys)
 sys.setdefaultencoding('utf8')
 _addon = xbmcaddon.Addon(id='plugin.video.gong.play')
 _language = _addon.getLocalizedString
 isApiEngine = True if _addon.getSetting('engine') == "0" else False 
 gong = GongPlay(_addon)
 
-def CATEGORIES():	
-	addDir(_language(30209).encode('utf8'), gong.url_video_clips, 4)
+def Categories():
+	gong.update('browse', 'Categories')
+	#addDir(_language(30209).encode('utf8'), gong.url_video_clips, 4)
 	categories = gong.get_categories()
 	for i in range(0, len(categories)):
 		addDir(categories[i]['text'], categories[i]['url'], 1)
@@ -22,8 +23,8 @@ def CATEGORIES():
 		xbmc.executebuiltin('Notification(%s,%s,15000,%s)'%(gong.display_name, msg, gong.icon))
 
 
-def GAMES(url = ''):
-	addDir(_language(30209).encode('utf8'), gong.url_video_clips, 4)
+def Games(url = ''):
+	#addDir(_language(30209).encode('utf8'), gong.url_video_clips, 4)
 	if isApiEngine:
 		loggedin = gong.login()
 		if loggedin:
@@ -37,7 +38,7 @@ def GAMES(url = ''):
 		text = games[i]['text'] % _language(30210) if '%s' in games[i]['text'] else games[i]['text'] 
 		addDir(text.encode('utf8'), games[i]['url'], 2, games[i]['icon'])
 		
-def STREAMS(match_url):
+def Streams(match_url):
 	xbmc.log("match_url: " + match_url)
 	name = urllib.unquote_plus(params["name"])
 	if isApiEngine:
@@ -59,7 +60,7 @@ def STREAMS(match_url):
 			if (len(streams)) > 1:
 				addLink( name + "  HD", streams[1], 3)
 
-def VIDEOCLIPS(url):
+def Videoclips(url):
 	video_clips = gong.get_video_clips(url)
 	for i in range(0, len(video_clips)):
 		addLink(video_clips[i]['text'], video_clips[i]['id'], 5, video_clips[i]['icon'])
@@ -68,11 +69,11 @@ def VIDEOCLIPS(url):
 	next_page_url = base64.b64decode('aHR0cDovL20udmJveDcuY29tL3VzZXIvY2xpcHMuZG8/dXNyPWdvbmdiZyZhamF4PTEmc3RhcnQ9JXMmb3JkZXI9ZGF0ZQ==') % start
 	addDir(_language(30211).encode('utf8'), next_page_url, 4, start)
 
-def PLAYVBOXSTREAM(id):
+def Playvboxstream(id):
 	PLAY(gong.get_clip_stream(id))
 
 
-def PLAY(url):
+def Play(url):
 	li = xbmcgui.ListItem(iconImage=gong.icon, thumbnailImage=gong.icon, path=url)
 	li.setInfo('video', { 'title': name })
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, xbmcgui.ListItem(path=url))
@@ -139,24 +140,24 @@ except:
 	pass
 	
 if isApiEngine == False and (mode==None or url==None or len(url) < 1):
-	CATEGORIES()
+	Categories()
 
 elif isApiEngine and (mode==None or url==None or len(url) < 1):
-	GAMES()
+	Games()
 	
 elif mode == 1:
-	GAMES(url)
+	Games(url)
 
 elif mode==2:
-	STREAMS(url)
+	Streams(url)
 
 elif mode==3:
-	PLAY(url)
+	Play(url)
 
 elif mode==4:
-	VIDEOCLIPS(url)
+	Videoclips(url)
 	
 elif mode==5:
-	PLAYVBOXSTREAM(url)
+	Playvboxstream(url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
