@@ -44,7 +44,7 @@ def Streams(match_url):
 	if isApiEngine:
 		streams = gong.get_game_stream(match_url)
 		addLink(name + " 1", streams[0], 3)
-		addLink(name + " 2", streams[0], 3)
+		addLink(name + " 2 HD", streams[1], 3)
 	else:
 		streams = gong.get_game_stream(match_url)
 		if len(streams) == 0:
